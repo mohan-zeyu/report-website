@@ -42,19 +42,19 @@ theme:
         name: Follow system preference
 
 nav:
-  - Home: index.md
-  - Getting started:
-      - Overview: getting-started/index.md
-      - Run the site: getting-started/run-the-site.md
-  - Writing guide:
-      - Add and edit content: guide/index.md
-      - Markdown examples: guide/markdown-examples.md
-      - Organize navigation: guide/navigation.md
-  - Project reference:
-      - Source brief: reference/project-brief.md
-      - Content template: reference/content-template.md
-  - Deployment:
-      - Cloudflare Workers: deployment/cloudflare-workers.md
+  - Logs for Building Attention Blocks: index.md
+  # - Getting started:
+  #     - Overview: getting-started/index.md
+  #     - Run the site: getting-started/run-the-site.md
+  # - Writing guide:
+  #     - Add and edit content: guide/index.md
+  #     - Markdown examples: guide/markdown-examples.md
+  #     - Organize navigation: guide/navigation.md
+  # - Project reference:
+  #     - Source brief: reference/project-brief.md
+  #     - Content template: reference/content-template.md
+  # - Deployment:
+  #     - Cloudflare Workers: deployment/cloudflare-workers.md
 
 markdown_extensions:
   - admonition

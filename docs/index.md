@@ -1,61 +1,103 @@
-# Report Wiki
+Since it has been so long since i read the paper "Attention is All You Need", i'm trying to write the code from scratch based on the incomplete impression, attempting to reconstruct the whole and detailed map by trial and error.  
+The basic idea of above words is just to make all dimensions of layers' input and output match, and finally, a forward computation can be done. To make it work, it definitely cost me much time.  
+Since i already completed the writing of `Decoder` before i write these words, so i will directly present the code here.
 
-Everything the team needs to understand, write, and maintain the report—kept in one searchable place.
+```python linenums="1"
+class Attention(nn.Module):
+    r"""
+    Dimension of input x in [N, n_seq, d_em]
+    """
+    def __init__(self, 
+                 d_k: int = 32,
+                 d_em: int = 16,
+                 num_heads: int = 4
+                 ) -> None:
+        super().__init__()
+        assert d_k % num_heads == 0
+        self.d_k = d_k
+        self.d_em = d_em
+        self.num_heads = num_heads
+        self.W_q = nn.Linear(d_em, d_k)
+        self.W_k = nn.Linear(d_em, d_k)
+        self.W_v = nn.Linear(d_em, d_k)
+        self.W_o = nn.Linear(d_k, d_em)
+        print(f"[Attention]: The d_k is {self.d_k}")
+        print(f"[Attention]: The d_em is {self.d_em}")
 
-<div class="hero-note">
-  This starter site follows the layout and interaction patterns of the
-  <a href="https://wiki.metacubex.one/en/" target="_blank" rel="noopener">mihomo documentation</a>:
-  top-level tabs, nested navigation, a page outline, full-text search, dark mode, and copyable code blocks.
-</div>
+    def _convert(self, w: torch.Tensor, num_heads: int) -> torch.Tensor:
+        N, n_seq, _ = w.shape
+        return w.reshape(N, n_seq, num_heads, -1).transpose(1, 2)
 
-<div class="grid cards" markdown>
+    def forward(self, 
+                x: torch.Tensor, 
+                mask: torch.Tensor = torch.tensor(0),
+                ) -> torch.Tensor:
+        Q = self._convert(self.W_q(x), self.num_heads)
+        K = self._convert(self.W_k(x), self.num_heads)
+        V = self._convert(self.W_v(x), self.num_heads)
 
--   **Start here**
+        ratio = (F.softmax(Q @ torch.transpose(K, -1, -2) / math.sqrt(self.d_k / self.num_heads) + mask, dim=-1)) @ V
+        N, n_seq, _ = x.shape
+        ratio = ratio.transpose(1, 2).reshape(N, n_seq, self.d_k)
+        y = self.W_o(ratio)
+        return y
 
-    ---
+class Decoder(nn.Module):
+    def __init__(self,
+                 d_k: int = 32,
+                 d_em: int = 16,
+                 num_heads: int = 4,
+                 ) -> None:
+        super().__init__()
+        self.d_hid = 4 * d_em
+        self.attention = Attention(d_k, d_em, num_heads)
+        self.ffn = nn.Sequential(
+            nn.Linear(d_em, self.d_hid),
+            nn.GELU(),
+            nn.Linear(self.d_hid, d_em)
+        )
+        self.ln_att = nn.LayerNorm(d_em)
+        self.ln_ffn = nn.LayerNorm(d_em)
 
-    Preview the wiki locally and learn where every file belongs.
+    def _gen_mask(self, sz: int) -> torch.Tensor:
+        return torch.triu(torch.full((sz, sz), float('-inf')), diagonal=1)
 
-    [Run the site →](getting-started/run-the-site.md)
-
--   **Write a page**
-
-    ---
-
-    Add headings, links, callouts, tables, diagrams, and code examples in Markdown.
-
-    [Open the writing guide →](guide/index.md)
-
--   **Use the project brief**
-
-    ---
-
-    Keep content aligned with the shared ChatGPT conversation that defines the project.
-
-    [View the source brief →](reference/project-brief.md)
-
-</div>
-
-## How this wiki works
-
-Each page is a Markdown file under `docs/`. The menu lives in `mkdocs.yml`. MkDocs combines those files with the Material theme and produces a static website in `site/`.
-
-```mermaid
-flowchart LR
-    A[Markdown in docs/] --> B[mkdocs.yml]
-    B --> C[Material theme]
-    C --> D[Static site in site/]
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        mask = self._gen_mask(x.shape[-2])
+        x = self.ln_att(x + self.attention(x, mask=mask))
+        x = self.ln_ffn(x + self.ffn(x))
+        return x
 ```
 
-!!! tip "Your first edit"
-    Open `docs/index.md`, change the first paragraph, save it, and refresh the local preview. MkDocs normally reloads the browser automatically.
+As you can see, it looks very good. And if you create a `main.py` to give it an input and it will do perfectly as we expected.  
+But for serious work, there are still things to do:
 
-## Suggested content map
+1. where the model lives.
 
-| Area | What belongs there |
-| --- | --- |
-| Getting started | Setup, prerequisites, and the shortest path to a useful result |
-| Writing guide | Instructions for people who maintain this wiki |
-| Project reference | Requirements, decisions, data definitions, and source material |
-| New sections | Findings, methodology, analysis, recommendations, or appendices |
+    Since model typically runs on GPU, here's another perspective we should consider in coding.  
+    Look at the `_gen_mask` method:
 
+    ```python linenums="1"
+    def _gen_mask(self, sz: int) -> torch.Tensor:
+        return torch.triu(torch.full((sz, sz), float('-inf')), diagonal=1)
+    ```
+
+    Here, i created a brand new tensor, which won't follow the model
+
+2. data types. Let's just do `model.to(device, torch.bfloat16)` when moved to GPU
+
+KV Cache  
+I haven't implemented it before by hand.  
+Some problems I discovered:
+
+1. Where your KV cache should be at, inside Decode, muti_head_attention class or outside everything.
+2. How to make it match with the "multi head", because we don't want reshape every time.
+3. When writing the `__init__` method of `KVCache` class, we don't know anything about the data, how should we do the initialization?
+4. What's the size of `K` and `V`? Do we need to consider the `batch`?
+
+**AI claim**  
+For learning purpose because i think concepts here are important as foundation work, no code is generated by AI, so here may be some design flaws or bugs.
+
+```python title="transformer.py" linenums="1"
+--8<-- "docs/transformer.py"
+```
