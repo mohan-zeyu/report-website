@@ -1,0 +1,6 @@
+.venv/
+.uv-cache/
+node_modules/
+.wrangler/
+site/
+.DS_Store

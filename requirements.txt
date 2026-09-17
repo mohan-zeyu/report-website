@@ -1,0 +1,4 @@
+# Cloudflare Workers Builds uses this file to install the documentation toolchain.
+# Keep this version aligned with the version resolved in uv.lock.
+mkdocs-material==9.7.7
+

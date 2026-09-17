@@ -1,0 +1,13 @@
+{
+  "name": "report-wiki",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "uv --cache-dir .uv-cache run mkdocs build --strict",
+    "preview:worker": "uv --cache-dir .uv-cache run mkdocs build --strict && wrangler dev",
+    "deploy": "uv --cache-dir .uv-cache run mkdocs build --strict && wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
