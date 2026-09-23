@@ -42,7 +42,8 @@ theme:
         name: Follow system preference
 
 nav:
-  - Logs for Building Attention Blocks: index.md
+  - Handwritten Code:
+    - Transformer and KV Cache Basics: handwritten-code/attention-blocks.md
   # - Getting started:
   #     - Overview: getting-started/index.md
   #     - Run the site: getting-started/run-the-site.md

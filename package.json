@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "uv --cache-dir .uv-cache run mkdocs build --strict",
+    "sync:content": "node scripts/sync-content.mjs",
     "preview:worker": "uv --cache-dir .uv-cache run mkdocs build --strict && wrangler dev",
     "deploy": "uv --cache-dir .uv-cache run mkdocs build --strict && wrangler deploy"
   },

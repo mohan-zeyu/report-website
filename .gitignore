@@ -2,5 +2,7 @@
 .uv-cache/
 node_modules/
 .wrangler/
+.content-source
 site/
 .DS_Store
+.obsidian/

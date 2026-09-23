@@ -13,12 +13,14 @@ Open <http://127.0.0.1:8000>.
 
 ## Add content
 
-1. Create or edit a `.md` file in `docs/`.
-2. Add new pages to the `nav:` section of `mkdocs.yml`.
+1. Create or edit a `.md` file in `docs/`. Put handwritten code articles in `docs/handwritten-code/` and start each one with its own `# Page title`.
+2. Add new pages under the `Handwritten Code` section of `nav:` in `mkdocs.yml`. The section name labels the top tab; the Markdown heading labels the article.
 3. Put images in `docs/assets/`.
 4. Validate with `uv run mkdocs build --strict`.
 
-The rendered writing guide is available under **Writing guide → Add and edit content** in the site navigation.
+Paths in `nav:` are relative to `docs/`. The root URL uses `docs/index.html` to redirect to the first handwritten code article; no `index.md` is needed. If using `npm run sync:content -- /path/to/article.md`, keep a `#` heading in the source article.
+
+You can also ask Codex to add a new handwritten code article, rename a navigation tab, reorder pages, or check a broken link. Point it to the relevant Markdown file when the content is outside this repository.
 
 ## Deploy to Cloudflare Workers
 
