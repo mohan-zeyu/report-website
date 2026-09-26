@@ -18,7 +18,7 @@ Open <http://127.0.0.1:8000>.
 3. Put images in `docs/assets/`.
 4. Validate with `uv run mkdocs build --strict`.
 
-Paths in `nav:` are relative to `docs/`. The root URL uses `docs/index.html` to redirect to the first handwritten code article; no `index.md` is needed. If using `npm run sync:content -- /path/to/article.md`, keep a `#` heading in the source article.
+Paths in `nav:` are relative to `docs/`. The root URL uses `docs/index.md` as the home page. If using `npm run sync:content -- /path/to/article.md`, keep a `#` heading in the source article.
 
 You can also ask Codex to add a new handwritten code article, rename a navigation tab, reorder pages, or check a broken link. Point it to the relevant Markdown file when the content is outside this repository.
 

@@ -42,6 +42,7 @@ theme:
         name: Follow system preference
 
 nav:
+  - Home: index.md
   - Handwritten Code:
     - Transformer and KV Cache Basics: handwritten-code/attention-blocks.md
   # - Getting started:
@@ -65,6 +66,8 @@ markdown_extensions:
   - toc:
       permalink: true
       toc_depth: 3
+  - pymdownx.arithmatex:
+      generic: true
   - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
@@ -88,6 +91,10 @@ plugins:
 
 extra_css:
   - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 
 extra:
   generator: false

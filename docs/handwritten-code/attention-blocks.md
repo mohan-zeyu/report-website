@@ -90,19 +90,97 @@ But for serious work, there are still things to do:
 
 2. data types. Let's just do `model.to(device, torch.bfloat16)` when moved to GPU
 
+In this case now, it looks like we have done lot's of things, core components got.
 ## KV Cache  
 I haven't implemented it before by hand.
-#### Some problems I discovered:
 
-1. Where your KV cache should be at, inside Decode, multi_head_attention class?
-	Here mostly we should consider the memory pollution problem.
+Let's solve the problem by asking questions:
+
+### Conceptually
+
+#### What does the KV cache store and how does it store data?
+
+Write the attention formula manually then we will find the formula like this for every query $q_n$:
+
+$$
+scores = \left[ score(q_n^Tk_1), \dots , score(q_n^Tk_n)\right] = Softmax(\left[ q_n^Tk_1, \dots, q_n^Tk_n\right])
+$$
+
+$$
+attention_{token_n} = \sum_{i=1}^{n}score(q_n^Tk_i)v_i^T
+$$
+
+And we will find that all $k_i$ before n can be reused.
+Honestly, I kept wondering why we don't just store the product of K and V days ago and now I find that I missed softmax function in the middle.
+So, actually, the KV cache is two separate buffers for storing K and V respectively.
+
+#### What are decoding and prefill phases?
+
+For a decoder-only model, you can't let it start to output from empty tokens. So initially some tokens will be sent first, and based on that, model will start talking. Also, it's the stage for storing KV cache.
+So the process that first N tokens come up is called prefill, at which the KV cache is computed. Because it's the $O(N^2)$ process, it's computation-bound, requiring lots of parallel computings like GEMM.
+
+Then after k and v of previous tokens have been got. We will just send maybe one token a time and then use the previous cache, which requires much less computations but one can imagine that there will be so much data transferring between HBM and cache to and from.
+So it's memory bandwidth bound.
+
+Note that for decoder-only model, we only need the last token's result to evaluate next token.
+
+### Engineering
+1.  KV_cache should be moved to GPU as well.
+	Internally, we set k and v tensors to be buffers of pytorch, data of which will then follow with the model
+	```python
+	self.register_buffer('k',
+						torch.empty((batch, num_heads, self.max_len, self.d)),
+						persistent=False
+						)
+	self.register_buffer('v',
+					torch.empty_like(self.k),
+					persistent=False
+					)
+	```
+	Note that here we pre-allocate some memory for storing kv cache.
+
+2. The weights are kept in memory but KV cache will change constantly.
+
+	We setup methods for clearing content in kv cache along the composition, from Decoder to Attention and to kv_cache.
 	
-	==But i would like to cover this problem below because current I is the one from "Sep 22nd", and I find that my implementation was wrong from this perspective I would like to cover in last week.==
-2. How to make it match with the "multi head", because we don't want reshape every time.
-3. When writing the `__init__` method of `KVCache` class, we don't know anything about the data, how should we do the initialization?
-4. What's the size of `K` and `V`? Do we need to consider the `batch`?
+	The way to clear kv_cache is simply reset the counter:
+	```python
+	def clear(self) -> None:
+        self.counter = 0
+	```
 
-This is the v0.1.0 code:
+3. training shouldn't use kv cache. So how to design the class? And gradients are also not required.
+
+	Add additional property to judge whether to use KV cache for generation.
+	```python
+    @property
+    def use_cache(self) -> bool:
+        return not self.training
+	```
+	Then before KV calculation, ask it first.
+	
+4. How to separate prefill and decode phases in code? Mask Design
+	Actually, we don't need to separate them, just treating them the same way. And remember to add KV cache by the input length, which is enough.
+	
+	For the mask, it's a point worth minding because it will no longer be previous square shape.
+	
+	For multi-token decoding phase, you need to prevent a very small triangular at the right top corner of the score matrix.
+	```python
+	q_len, k_len = Q.size(-2), K.size(-2)
+	query_positions = torch.arange(k_len - q_len, k_len, device=Q.device)
+	key_positions = torch.arange(k_len, device=Q.device)
+	future = query_positions[:, None] < key_positions[None, :]
+	```
+
+5. How do we make sure that the `batch` is always matched.
+	Note that there's a dimension of data, very strange and mysterious that we haven't care about it.
+	
+	For a deployed model for inference, I think the `batch` size has been set up initially. And later maybe backends will combine different user requests together into?
+	But will it actually accelerate?
+	
+	Yes, definitely, because if the batch is not filled, then many GPU computing units will just be idle, only memory working hard. So gathering batches helps a lot for throughput.
+
+This is the final code:
 
 <div class="code-scroll-window">
   <div class="code-scroll-window__title" id="transformer-code-title">transformer.py</div>
@@ -117,8 +195,7 @@ This is the v0.1.0 code:
 
 
 
-
-
+Another problem is from "GLM 5.3 Flash", it told me i haven't implemented `positional embedding`, so the "past" K/V are identical because they are simply computed by $W_k(x)$ and $W_v(x)$.
 
 
 ## **AI claim**  
