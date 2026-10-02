@@ -45,6 +45,8 @@ nav:
   - Home: index.md
   - Handwritten Code:
     - Transformer and KV Cache Basics: handwritten-code/attention-blocks.md
+  - Blogs:
+    - Get a better understanding of LLM outputs: blogs/get-a-better-understanding-of-LLM-outputs.md
   # - Getting started:
   #     - Overview: getting-started/index.md
   #     - Run the site: getting-started/run-the-site.md
