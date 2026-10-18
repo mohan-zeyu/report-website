@@ -45,6 +45,10 @@ nav:
   - Home: index.md
   - Handwritten Code:
     - Transformer and KV Cache Basics: handwritten-code/attention-blocks.md
+    - Reinforcement Learning: handwritten-code/Reinforcement-Learning.md
+  - Paper:
+    - Reinforcement Learning:
+      - Exploration by Random Network Distillation: blogs/MISC in Network.md
   - Blogs:
     - Get a better understanding of LLM outputs: blogs/get-a-better-understanding-of-LLM-outputs.md
   # - Getting started:
