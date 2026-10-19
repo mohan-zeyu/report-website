@@ -51,6 +51,10 @@ nav:
       - Exploration by Random Network Distillation: blogs/MISC in Network.md
   - Blogs:
     - Get a better understanding of LLM outputs: blogs/get-a-better-understanding-of-LLM-outputs.md
+    - MISC in Network: blogs/MISC in Network.md
+    - Changing Default Working Directory: blogs/Changing-Default-Working-Directory.md
+    - Setting up a New Ubuntu on Laptop: blogs/Setting up a New Ubuntu on Laptop.md
+    - 碎碎念: blogs/balabala.md
   # - Getting started:
   #     - Overview: getting-started/index.md
   #     - Run the site: getting-started/run-the-site.md
