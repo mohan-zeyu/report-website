@@ -3,6 +3,7 @@ site_description: Project documentation, decisions, and report guidance
 
 theme:
   name: material
+  custom_dir: overrides
   language: en
   logo: assets/logo.svg
   favicon: assets/logo.svg
@@ -46,9 +47,10 @@ nav:
   - Handwritten Code:
     - Transformer and KV Cache Basics: handwritten-code/attention-blocks.md
     - Reinforcement Learning: handwritten-code/Reinforcement-Learning.md
-  - Paper:
-    - Reinforcement Learning:
-      - Exploration by Random Network Distillation: blogs/MISC in Network.md
+  - Problems: 
+    - research/Features and Problems.md
+    - Reinforcement Learning: 
+      - samping rollout: research/sampling rollout.md
   - Blogs:
     - Get a better understanding of LLM outputs: blogs/get-a-better-understanding-of-LLM-outputs.md
     - MISC in Network: blogs/MISC in Network.md
@@ -58,6 +60,7 @@ nav:
     - Amazed by Opus 5.5: blogs/Amazed by Opus 5.5.md
     - Vless + Reality: blogs/Vless + Reality.md
     - Cheaper Attention: blogs/Cheaper Attention.md
+    - Nano-vLLM Field Guide: blogs/nano-vllm-field-guide.md
   # - Getting started:
   #     - Overview: getting-started/index.md
   #     - Run the site: getting-started/run-the-site.md
@@ -106,6 +109,7 @@ extra_css:
   - stylesheets/extra.css
 
 extra_javascript:
+  - javascripts/sidebar.js
   - javascripts/mathjax.js
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 

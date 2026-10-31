@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {{ super() }}
+  {% if page and page.meta.guide_src %}
+    <script>
+      document.documentElement.classList.add("html-guide-page", "wiki-sidebar-collapsed");
+    </script>
+  {% endif %}
+{% endblock %}

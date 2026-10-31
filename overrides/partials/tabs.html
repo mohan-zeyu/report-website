@@ -1,0 +1,23 @@
+{% import "partials/tabs-item.html" as item with context %}
+<nav class="md-tabs" aria-label="{{ lang.t('tabs') }}" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      {% for nav_item in nav.items %}
+        {{ item.render(nav_item) }}
+      {% endfor %}
+      <li class="wiki-sidebar-tab">
+        <button class="wiki-sidebar-toggle" type="button"
+                aria-controls="wiki-sidebar" aria-label="Toggle sidebar"
+                title="Toggle sidebar" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+            <path d="M9 4v16"></path>
+            <path class="wiki-sidebar-toggle__arrow" d="m16 9-3 3 3 3"></path>
+          </svg>
+        </button>
+      </li>
+    </ul>
+  </div>
+</nav>

@@ -1,0 +1,16 @@
+{% extends "main.html" %}
+
+{% block container %}
+  {% set heading = page.toc | first %}
+  <div class="md-content html-guide-content" data-md-component="content"
+       id="{{ heading.id if heading else 'html-guide' }}" tabindex="-1">
+    <iframe
+      class="html-guide-frame"
+      src="{{ page.meta.guide_src | url }}"
+      title="{{ page.title | e }}"
+      allow="clipboard-write"
+    ></iframe>
+  </div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

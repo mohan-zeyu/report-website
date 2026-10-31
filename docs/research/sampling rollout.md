@@ -1,0 +1,3 @@
+GRPO saves computations for training and using another critic for rewards, replaced by a relative score among several rollouts.
+
+But a reasoning model usually requires a relatively high rollouts like 16 to produce a good result, however, it consumes significantly more computation and making the training more memory bound because every different approach will produce different KV cache so one should keep them all to proceed training.
